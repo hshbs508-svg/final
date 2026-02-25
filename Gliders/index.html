@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glider Travels | Your World of Joy</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#0EA5E9' },
+                    fontFamily: { sans: ['Roboto', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 0px; height: 0px; }
+        .tour-card:hover img { transform: scale(1.1); }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Hide sections dynamically */
+        .view-hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[2000] bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl flex items-center transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px]">
+        <i class="fa-solid fa-circle-check text-green-400 mr-3 text-lg"></i>
+        <span id="toast-msg" class="font-medium text-sm">Notification</span>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 top-0 bg-white shadow-sm h-20 transition-all duration-300">
+        <div class="max-w-[1200px] mx-auto px-4 h-full flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <!-- Logo -->
+                <a href="#" onclick="navigate('home'); return false;" class="flex items-center cursor-pointer">
+                    <img src="logo.jpg" alt="Glider" class="h-14 md:h-16 object-contain" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=GLIDER&background=0EA5E9&color=fff&size=100';">
+                </a>
+                
+                <!-- Desktop Search -->
+                <div class="hidden md:flex relative w-[400px]">
+                    <input type="text" id="nav-search" placeholder="Search destinations, tours..." class="w-full pl-4 pr-10 py-2.5 rounded-full bg-gray-100 focus:outline-none focus:ring-1 focus:ring-brand text-sm" onkeyup="handleSearch(event)">
+                    <button class="absolute right-1 top-1 bg-brand text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-sky-600 transition" onclick="executeSearch()">
+                        <i class="fa-solid fa-search text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-600">
+                <span class="cursor-pointer hover:text-brand transition" onclick="setCategory('South East Asia')">South East Asia</span>
+                <span class="cursor-pointer hover:text-brand transition" onclick="setCategory('Middle East')">Dubai & ME</span>
+                <div class="h-5 w-px bg-gray-300"></div>
+                <a href="tel:+918114412057" class="bg-brand text-white px-5 py-2 rounded-full font-bold shadow-md hover:bg-sky-600 transition flex items-center">
+                    <i class="fa-solid fa-phone mr-2"></i> Support
+                </a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button class="md:hidden text-gray-600 hover:text-brand text-xl transition" onclick="showToast('Mobile menu coming soon!')">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ==============================
+         HOME VIEW
+         ============================== -->
+    <div id="view-home" class="pt-16 animate-fade-in">
+        
+        <!-- HERO SECTION -->
+        <header class="relative h-[400px] md:h-[450px] flex items-center justify-center">
+            <img src="hero-bg.jpg" class="absolute inset-0 w-full h-full object-cover z-0" alt="Banner" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80';">
+            <div class="absolute inset-0 bg-black/30 z-0"></div>
+            
+            <div class="relative z-10 text-center px-4 w-full max-w-3xl">
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 drop-shadow-md">Your World of Joy</h1>
+                <div class="bg-white p-2 rounded-lg shadow-lg flex items-center h-14 w-full">
+                    <div class="flex-1 flex items-center px-4 h-full">
+                        <i class="fa-solid fa-search text-gray-400 mr-3"></i>
+                        <input type="text" id="hero-search" placeholder="Search destinations, tours..." class="w-full h-full outline-none text-gray-700" onkeyup="handleSearch(event)">
+                    </div>
+                    <button onclick="executeSearch()" class="bg-brand text-white font-bold px-8 h-10 rounded-md hover:bg-sky-600 transition mr-1">Search</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- CATEGORIES -->
+        <section class="max-w-[1200px] mx-auto px-6 py-10">
+            <div class="flex justify-between md:justify-start md:space-x-10 overflow-x-auto pb-4 custom-scrollbar">
+                <div class="flex flex-col items-center min-w-[90px] cursor-pointer group" onclick="setCategory('All')">
+                    <div id="cat-All" class="w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-sky-100 text-brand text-lg"><i class="fa-solid fa-globe"></i></div>
+                    <span id="text-All" class="text-xs font-medium text-center text-brand">All Tours</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[90px] cursor-pointer group" onclick="setCategory('South East Asia')">
+                    <div id="cat-SEA" class="w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-gray-100 text-gray-500 group-hover:bg-sky-100 group-hover:text-brand text-lg"><i class="fa-solid fa-umbrella-beach"></i></div>
+                    <span id="text-SEA" class="text-xs font-medium text-center text-gray-600 group-hover:text-gray-900">S.E. Asia</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[90px] cursor-pointer group" onclick="setCategory('Middle East')">
+                    <div id="cat-ME" class="w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-gray-100 text-gray-500 group-hover:bg-sky-100 group-hover:text-brand text-lg"><i class="fa-solid fa-building"></i></div>
+                    <span id="text-ME" class="text-xs font-medium text-center text-gray-600 group-hover:text-gray-900">Middle East</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[90px] cursor-pointer group" onclick="setCategory('India')">
+                    <div id="cat-India" class="w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-gray-100 text-gray-500 group-hover:bg-sky-100 group-hover:text-brand text-lg"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <span id="text-India" class="text-xs font-medium text-center text-gray-600 group-hover:text-gray-900">India</span>
+                </div>
+                <div class="flex flex-col items-center min-w-[90px] cursor-pointer group" onclick="setCategory('World')">
+                    <div id="cat-World" class="w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-gray-100 text-gray-500 group-hover:bg-sky-100 group-hover:text-brand text-lg"><i class="fa-solid fa-plane"></i></div>
+                    <span id="text-World" class="text-xs font-medium text-center text-gray-600 group-hover:text-gray-900">World</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- INVENTORY GRID -->
+        <section class="max-w-[1200px] mx-auto px-6 pb-20">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800" id="grid-title">All Premium Tours</h2>
+                <span class="text-sm text-gray-500 hover:text-brand cursor-pointer transition" onclick="setCategory('All')">Clear Filters</span>
+            </div>
+            
+            <div id="inventory-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Cards injected here via JS -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center py-16">
+                <i class="fa-solid fa-box-open text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700">No results found</h3>
+                <p class="text-gray-500 mt-2">Try adjusting your search or filters.</p>
+                <button onclick="setCategory('All')" class="mt-4 text-brand font-bold hover:underline">View all tours</button>
+            </div>
+        </section>
+
+        <!-- POPULAR DESTINATIONS -->
+        <section class="bg-white py-16 border-t border-gray-100">
+            <div class="max-w-[1200px] mx-auto px-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-8">Major Destinations</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="dest-grid">
+                    <!-- Destinations injected here via JS -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==============================
+         DETAIL VIEW
+         ============================== -->
+    <div id="view-detail" class="pt-24 pb-20 view-hidden bg-[#F5F5F5] min-h-screen">
+        <div class="max-w-[1000px] mx-auto px-4">
+            <!-- Breadcrumbs -->
+            <div class="text-xs text-gray-500 mb-4 flex items-center">
+                <span class="cursor-pointer hover:text-brand transition" onclick="navigate('home')">Home</span> 
+                <span class="mx-2">&gt;</span> 
+                <span id="dt-dest" class="cursor-pointer hover:text-brand transition" onclick="navigate('home')">Location</span> 
+                <span class="mx-2">&gt;</span> 
+                <span id="dt-crumb-name" class="text-gray-800 font-medium truncate w-48 sm:w-auto">Tour Name</span>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Content -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm mb-6">
+                        <div class="relative h-[300px] sm:h-[400px]">
+                            <img id="dt-img" src="" class="w-full h-full object-cover" alt="Tour">
+                            <div id="dt-tag" class="absolute top-4 left-4 bg-brand text-white text-xs font-bold px-3 py-1 rounded-md hidden"></div>
+                        </div>
+                        <div class="p-6">
+                            <h1 id="dt-title" class="text-2xl font-bold text-gray-900 mb-3">Tour Name</h1>
+                            
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
+                                <span class="flex items-center text-brand font-bold"><i class="fa-solid fa-star mr-1"></i> <span id="dt-rating">4.8</span></span>
+                                <span>(<span id="dt-reviews">0</span> reviews)</span>
+                                <span class="flex items-center"><i class="fa-solid fa-location-dot mr-1 text-gray-400"></i> <span id="dt-loc">Location</span></span>
+                                <span class="text-xs bg-sky-100 text-brand px-2 py-0.5 rounded font-bold" id="dt-category">Premium Tour</span>
+                            </div>
+                            
+                            <!-- Tabs -->
+                            <div class="flex border-b border-gray-200 mb-6 overflow-x-auto custom-scrollbar">
+                                <button onclick="switchTab('itinerary')" id="tab-itinerary" class="tab-btn px-4 py-2 font-bold text-sm whitespace-nowrap text-brand border-b-2 border-brand transition">Itinerary / Details</button>
+                                <button onclick="switchTab('inclusions')" id="tab-inclusions" class="tab-btn px-4 py-2 font-bold text-sm whitespace-nowrap text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition">Inclusions</button>
+                                <button onclick="switchTab('policies')" id="tab-policies" class="tab-btn px-4 py-2 font-bold text-sm whitespace-nowrap text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition">Policies</button>
+                            </div>
+
+                            <!-- Tab Content -->
+                            <div id="content-itinerary" class="tab-content block space-y-6 relative ml-2">
+                                <div class="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                                <div id="dt-itinerary-list">
+                                    <!-- Itinerary injected via JS -->
+                                </div>
+                            </div>
+                            
+                            <div id="content-inclusions" class="tab-content hidden space-y-3">
+                                <h4 class="font-bold text-sm text-gray-800">What's Included</h4>
+                                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600">
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> Standard Accommodation</li>
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> All Local Taxes & Fees</li>
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> Professional Guide/Driver</li>
+                                    <li class="flex items-center"><i class="fa-solid fa-circle-check text-green-500 mr-2"></i> 24/7 Glider Support</li>
+                                </ul>
+                            </div>
+
+                            <div id="content-policies" class="tab-content hidden">
+                                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 text-sm space-y-3">
+                                    <div class="flex justify-between border-b border-gray-200 pb-2"><span class="text-gray-600">Booking Terms:</span><span class="font-bold text-gray-800" id="dt-terms">50% Advance to Book</span></div>
+                                    <div class="flex justify-between pb-2"><span class="text-gray-600">Cancellation:</span><span class="font-bold text-green-600" id="dt-cancellation">Flexible Booking Policy</span></div>
+                                    <div class="flex items-center text-xs text-green-700 mt-2 bg-green-50 border border-green-200 p-3 rounded-md">
+                                        <i class="fa-solid fa-shield-heart mr-2 text-green-500 text-lg"></i> <span id="dt-policy-note">Enjoy peace of mind with our highly flexible booking and easy modification policy.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Content (Booking Card) -->
+                <div class="relative">
+                    <div class="bg-white rounded-xl shadow-sm p-6 lg:sticky lg:top-24 border border-gray-100">
+                        <div class="flex items-end space-x-2 mb-6">
+                            <span class="text-3xl font-black text-brand" id="dt-price">₹ 0</span>
+                            <span class="text-sm text-gray-400 line-through mb-1" id="dt-old-price">₹ 0</span>
+                        </div>
+                        
+                        <div class="space-y-5 mb-6">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Select Start Date</label>
+                                <input type="date" id="book-date" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-brand focus:ring-1 focus:ring-brand outline-none font-medium text-gray-700 bg-gray-50 transition">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide block mb-2">Travelers</label>
+                                <div class="flex justify-between items-center border border-gray-300 rounded-lg p-2 bg-gray-50">
+                                    <span class="text-sm font-medium text-gray-700 pl-2">Adult / Pax</span>
+                                    <div class="flex items-center space-x-3 bg-white border border-gray-200 rounded-md p-1">
+                                        <button onclick="updateGuests(-1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-500 hover:bg-gray-100 font-bold transition"><i class="fa-solid fa-minus text-xs"></i></button>
+                                        <span class="text-sm font-bold w-4 text-center" id="book-guests">2</span>
+                                        <button onclick="updateGuests(1)" class="w-7 h-7 flex items-center justify-center rounded text-gray-500 hover:bg-gray-100 font-bold transition"><i class="fa-solid fa-plus text-xs"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-dashed border-gray-200 pt-4 mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-500">Total Price</span>
+                                <span class="font-bold text-gray-900" id="book-total">₹ 0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-brand bg-sky-50 p-3 rounded-lg border border-sky-100 transition">
+                                <span class="text-sm font-bold" id="book-payable-label">50% Deposit</span>
+                                <span class="font-black text-xl" id="book-payable">₹ 0</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="openPayment()" class="w-full bg-brand text-white font-bold py-4 rounded-xl hover:bg-sky-600 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            Book Now <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <div class="mt-4 flex items-center justify-center text-xs text-green-600 font-medium">
+                            <i class="fa-solid fa-bolt mr-1"></i> Fast Booking Confirmation
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==============================
+         MODALS
+         ============================== -->
+    
+    <!-- Payment Modal -->
+    <div id="modal-payment" class="fixed inset-0 z-[3000] bg-black/70 backdrop-blur-sm view-hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+            <div class="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+                <div class="flex items-center space-x-2"><i class="fa-solid fa-qrcode text-brand text-lg"></i><span class="font-bold text-gray-800">Scan to Pay</span></div>
+                <button onclick="closeModals()" class="text-gray-400 hover:text-gray-800 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <p class="text-sm text-gray-500 mb-1" id="pay-type-label">Amount to Pay</p>
+                    <h2 class="text-4xl font-black text-gray-900" id="pay-amount">₹ 0</h2>
+                </div>
+                
+                <!-- NEW QR CODE SECTION -->
+                <div class="text-center mb-6">
+                    <p class="text-sm font-bold text-gray-700 mb-3">Pay securely using any UPI App</p>
+                    <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 inline-block shadow-sm">
+                        <img src="payment qr glider.jpeg" alt="Glider Travels QR Code" class="w-48 h-48 object-contain rounded-lg mx-auto" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay';">
+                    </div>
+                    <div class="flex justify-center items-center gap-2 mt-4 text-gray-500 text-xs font-medium">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png" class="h-3 opacity-70" alt="GPay">
+                        <span>|</span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/512px-UPI-Logo-vector.svg.png" class="h-3 opacity-70" alt="UPI">
+                        <span>|</span>
+                        <span>Paytm</span>
+                    </div>
+                </div>
+
+                <div class="bg-sky-50 p-4 rounded-xl border border-sky-100 mb-2 text-center">
+                    <p class="text-sm font-bold text-gray-800 mb-3">Step 2: Send Screenshot</p>
+                    <button id="btn-process-pay" onclick="processEmailPayment()" class="w-full bg-brand text-white font-bold py-3.5 rounded-xl hover:bg-sky-600 transition shadow-md flex justify-center items-center text-base">
+                        <i class="fa-regular fa-envelope mr-2"></i> I Have Paid
+                    </button>
+                    <p class="text-xs text-gray-500 mt-3 leading-relaxed">Clicking this will open your email app.<br><span class="font-bold text-gray-700">Please attach your screenshot to the email.</span></p>
+                </div>
+            </div>
+            <div class="bg-gray-100 px-6 py-3 border-t text-center">
+                <p class="text-[11px] text-gray-500 flex items-center justify-center font-medium"><i class="fa-solid fa-shield-check mr-1"></i> 100% Secure Payment</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voucher Modal -->
+    <div id="modal-voucher" class="fixed inset-0 z-[4000] bg-black/80 backdrop-blur-md view-hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl relative animate-fade-in">
+            <button onclick="navigate('home')" class="absolute top-4 right-4 text-white hover:text-gray-200 z-10 bg-black/20 w-8 h-8 flex items-center justify-center rounded-full transition"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="bg-brand p-8 text-white text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-white/10 skew-y-6 transform origin-bottom-left"></div>
+                <div class="relative z-10">
+                    <div class="w-16 h-16 bg-white text-brand rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i class="fa-solid fa-check text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-black mb-1">Booking Confirmed!</h2>
+                    <p class="text-sky-100 font-medium">Your Tour Voucher is ready</p>
+                </div>
+            </div>
+            
+            <div class="p-8">
+                <div class="border-b-2 border-dashed border-gray-200 pb-6 mb-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight" id="v-title">Tour Name</h3>
+                    <div class="flex items-center text-sm text-gray-500 mb-5 font-medium">
+                        <i class="fa-solid fa-clock mr-2 text-brand"></i> <span id="v-duration">1 Day</span>
+                        <span class="mx-3 text-gray-300">|</span>
+                        <i class="fa-solid fa-location-dot mr-2 text-brand"></i> <span id="v-dest">Location</span>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-4 flex justify-between items-center border border-gray-100">
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Start Date</p>
+                            <p class="font-bold text-gray-900" id="v-date">2026-03-01</p>
+                        </div>
+                        <div class="text-right border-l pl-4 border-gray-200">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold mb-1">Travelers</p>
+                            <p class="font-bold text-gray-900" id="v-guests">2 Pax</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="bg-white border-2 border-gray-900 p-2 inline-block rounded-xl mb-3">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=GLIDER-CONFIRMED" alt="QR Code" class="w-24 h-24">
+                    </div>
+                    <p class="text-sm font-mono text-gray-500 tracking-widest bg-gray-100 py-1 px-3 rounded inline-block" id="v-id">KL-123456</p>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button onclick="window.print()" class="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold text-sm hover:bg-gray-200 transition flex justify-center items-center">
+                        <i class="fa-solid fa-print mr-2"></i> Print
+                    </button>
+                    <button onclick="navigate('home')" class="flex-1 bg-brand text-white py-3.5 rounded-xl font-bold text-sm hover:bg-sky-600 transition flex justify-center items-center shadow-md">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8 border-t-[6px] border-brand mt-10">
+        <div class="max-w-[1200px] mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 border-b border-gray-800 pb-12">
+                <div>
+                    <img src="logo.jpg" alt="Glider" class="h-16 mb-6 bg-white p-1 rounded-xl" onerror="this.style.display='none'">
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">Your premium partner for global tours, attraction tickets, and unforgettable memories.</p>
+                    <div class="flex space-x-3">
+                        <a href="#" onclick="showToast('Facebook page coming soon!'); return false;" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand transition"><i class="fa-brands fa-facebook-f text-xs"></i></a>
+                        <a href="#" onclick="showToast('Instagram page coming soon!'); return false;" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand transition"><i class="fa-brands fa-instagram text-xs"></i></a>
+                        <a href="#" onclick="showToast('Twitter page coming soon!'); return false;" class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center hover:bg-brand transition"><i class="fa-brands fa-twitter text-xs"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Discover</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><span onclick="setSearch('Dubai')" class="hover:text-brand transition cursor-pointer">Dubai Tours</span></li>
+                        <li><span onclick="setSearch('Thailand')" class="hover:text-brand transition cursor-pointer">Thailand Escapes</span></li>
+                        <li><span onclick="setSearch('Singapore')" class="hover:text-brand transition cursor-pointer">Singapore Packages</span></li>
+                        <li><span onclick="setSearch('Bali')" class="hover:text-brand transition cursor-pointer">Bali Getaways</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Support & Contact</h4>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="mailto:support@glidertravels.com" class="hover:text-brand transition flex items-center"><i class="fa-regular fa-envelope w-5"></i> support@glidertravels.com</a></li>
+                        <li><a href="tel:+918114412057" class="hover:text-brand transition flex items-center"><i class="fa-solid fa-phone w-5"></i> 8114412057 (Harshit Sharma)</a></li>
+                        <li><a href="#" onclick="showToast('Help Center coming soon!'); return false;" class="hover:text-brand transition flex items-center"><i class="fa-solid fa-circle-question w-5"></i> Help Center</a></li>
+                        <li><a href="#" onclick="showToast('Policies coming soon!'); return false;" class="hover:text-brand transition flex items-center"><i class="fa-solid fa-file-contract w-5"></i> Policies</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Newsletter</h4>
+                    <p class="text-gray-400 text-sm mb-4">Subscribe for the latest travel deals.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Email address" class="px-4 py-2 w-full rounded-l-md text-gray-900 outline-none focus:ring-2 focus:ring-brand">
+                        <button onclick="showToast('Subscribed to Newsletter successfully!')" class="bg-brand px-4 py-2 rounded-r-md hover:bg-sky-600 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-sm text-gray-600 font-medium">
+                &copy; 2026 Glider Travels Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==============================
+         JAVASCRIPT LOGIC
+         ============================== -->
+    <script>
+        // --- 1. DATA (All Tours, No Attractions) ---
+        const INVENTORY = [
+            // MIDDLE EAST (DUBAI)
+            { id: 'dxb-01', name: "Dubai Super Saver (4N/5D)", dest: "Dubai", cat: "Middle East", duration: "5 Days", price: 32000, oldPrice: 38000, rating: 4.8, reviews: "2.1k", img: "https://images.unsplash.com/photo-1512453979798-5ea904ac2294?auto=format&fit=crop&q=80", tag: "Best Seller", itinerary: [{ day: 1, title: "Arrival", desc: "Airport Pickup & Dhow Cruise Dinner." }, { day: 2, title: "City Tour", desc: "Half day Dubai City Tour + Burj Khalifa 124th Floor." }, { day: 3, title: "Desert", desc: "Premium Desert Safari with BBQ Dinner." }, { day: 4, title: "Leisure", desc: "Free day for shopping or Miracle Garden." }, { day: 5, title: "Departure", desc: "Transfer to Airport." }] },
+            { id: 'dxb-02', name: "Dubai & Abu Dhabi Combo (6N/7D)", dest: "Dubai & Abu Dhabi", cat: "Middle East", duration: "7 Days", price: 58000, oldPrice: 65000, rating: 4.9, reviews: "1.2k", img: "https://images.unsplash.com/photo-1512632578888-169bbbc64f33?auto=format&fit=crop&q=80", tag: "Luxury", itinerary: [{ day: 1, title: "Dubai Arrival", desc: "Check-in and Marina Walk." }, { day: 2, title: "City Highlights", desc: "Dubai Frame & Burj Khalifa." }, { day: 3, title: "Desert Safari", desc: "Evening Safari." }, { day: 4, title: "Abu Dhabi", desc: "Transfer, Grand Mosque & Louvre." }, { day: 5, title: "Yas Island", desc: "Ferrari World or Warner Bros." }, { day: 6, title: "Leisure", desc: "Relaxation." }, { day: 7, title: "Departure", desc: "Airport drop." }] },
+            
+            // SOUTH EAST ASIA
+            { id: 'sg-01', name: "Singapore Essentials (3N/4D)", dest: "Singapore", cat: "South East Asia", duration: "4 Days", price: 28500, oldPrice: 35000, rating: 4.7, reviews: "3.5k", img: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80", tag: "Popular", itinerary: [{ day: 1, title: "Arrival & Night Safari", desc: "Private transfer to hotel. Evening Night Safari." }, { day: 2, title: "City Tour", desc: "Merlion, Chinatown, Little India." }, { day: 3, title: "Sentosa Island", desc: "Cable Car, Luge, Wings of Time." }, { day: 4, title: "Departure", desc: "Breakfast and airport drop." }] },
+            { id: 'sg-02', name: "Singapore Family Fun (5N/6D)", dest: "Singapore", cat: "South East Asia", duration: "6 Days", price: 48000, oldPrice: 55000, rating: 4.8, reviews: "1.8k", img: "https://images.unsplash.com/photo-1546271876-af6caec5fae5?auto=format&fit=crop&q=80", tag: "Family", itinerary: [{ day: 1, title: "Arrival", desc: "Airport Transfer." }, { day: 2, title: "Universal Studios", desc: "Full day pass." }, { day: 3, title: "Zoo & River Wonder", desc: "Wildlife parks." }, { day: 4, title: "Sentosa", desc: "S.E.A Aquarium." }, { day: 5, title: "Marina Bay", desc: "Skypark & Gardens." }, { day: 6, title: "Departure", desc: "Transfer." }] },
+            { id: 'th-01', name: "Phuket & Krabi Escapade (5N/6D)", dest: "Thailand", cat: "South East Asia", duration: "6 Days", price: 34000, oldPrice: 40000, rating: 4.7, reviews: "4.2k", img: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80", tag: "Beaches", itinerary: [{ day: 1, title: "Krabi", desc: "Arrival & Leisure." }, { day: 2, title: "4 Islands Tour", desc: "Speedboat tour." }, { day: 3, title: "Phuket Transfer", desc: "Drive to Phuket." }, { day: 4, title: "Phi Phi Island", desc: "Full day excursion." }, { day: 5, title: "City Tour", desc: "Phuket highlights." }, { day: 6, title: "Departure", desc: "Fly out." }] },
+            { id: 'th-02', name: "Bangkok & Pattaya Tour (4N/5D)", dest: "Thailand", cat: "South East Asia", duration: "5 Days", price: 24500, oldPrice: 29000, rating: 4.6, reviews: "5.1k", img: "https://images.unsplash.com/photo-1508009603885-247a5054c256?auto=format&fit=crop&q=80", tag: "Value", itinerary: [{ day: 1, title: "Pattaya", desc: "Arrival in BKK, transfer to Pattaya. Alcazar Show." }, { day: 2, title: "Coral Island", desc: "Speedboat & Lunch." }, { day: 3, title: "Bangkok", desc: "Transfer & Temple Tour." }, { day: 4, title: "Safari World", desc: "Marine Park full day." }, { day: 5, title: "Departure", desc: "Airport drop." }] },
+            { id: 'vt-01', name: "Classic Vietnam (Hanoi & Halong) (4N/5D)", dest: "Vietnam", cat: "South East Asia", duration: "5 Days", price: 38000, oldPrice: 45000, rating: 4.9, reviews: "1.1k", img: "https://images.unsplash.com/photo-1557315360-6a350ab4eccd?auto=format&fit=crop&q=80", tag: "Heritage", itinerary: [{ day: 1, title: "Hanoi", desc: "Arrival & Old Quarter walking tour." }, { day: 2, title: "City Tour", desc: "Ho Chi Minh Mausoleum & Temple of Literature." }, { day: 3, title: "Halong Bay", desc: "Overnight Cruise." }, { day: 4, title: "Hanoi Return", desc: "Disembark and drive back." }, { day: 5, title: "Departure", desc: "Airport transfer." }] },
+            { id: 'bl-01', name: "Bali Romantic Getaway (5N/6D)", dest: "Bali, Indonesia", cat: "South East Asia", duration: "6 Days", price: 42000, oldPrice: 48000, rating: 4.9, reviews: "3.2k", img: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80", tag: "Couples", itinerary: [{ day: 1, title: "Ubud", desc: "Arrival & Private Villa Check-in." }, { day: 2, title: "Kintamani", desc: "Volcano view & Swing." }, { day: 3, title: "Seminyak", desc: "Transfer to beach resort." }, { day: 4, title: "Nusa Penida", desc: "West island day trip." }, { day: 5, title: "Uluwatu", desc: "Sunset temple & Kecak dance." }, { day: 6, title: "Departure", desc: "Fly home." }] },
+
+            // WORLD / OTHERS
+            { id: 'jp-01', name: "Japan Golden Route (7N/8D)", dest: "Japan", cat: "World", duration: "8 Days", price: 145000, oldPrice: 160000, rating: 4.9, reviews: "2.5k", img: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80", tag: "Classic", itinerary: [{ day: 1, title: "Tokyo", desc: "Arrival." }, { day: 2, title: "Tokyo City", desc: "Shibuya, Asakusa." }, { day: 3, title: "Mt Fuji", desc: "Hakone & Fuji." }, { day: 4, title: "Kyoto", desc: "Bullet train." }, { day: 5, title: "Kyoto Temples", desc: "Fushimi Inari." }, { day: 6, title: "Osaka", desc: "Transfer." }, { day: 7, title: "Nara", desc: "Day trip." }, { day: 8, title: "Departure", desc: "Fly out." }] },
+            { id: 'ge-01', name: "Best of Georgia (Tbilisi & Kazbegi) (5N/6D)", dest: "Georgia", cat: "World", duration: "6 Days", price: 55000, oldPrice: 62000, rating: 4.7, reviews: "800", img: "https://images.unsplash.com/photo-1565018977116-e52296d19207?auto=format&fit=crop&q=80", tag: "Trending", itinerary: [{ day: 1, title: "Tbilisi", desc: "Arrival & Evening Stroll." }, { day: 2, title: "City Tour", desc: "Old Town & Cable Car." }, { day: 3, title: "Kazbegi", desc: "Mountains & Gergeti Trinity." }, { day: 4, title: "Mtskheta", desc: "Ancient capital." }, { day: 5, title: "Kakheti", desc: "Wine tasting region." }, { day: 6, title: "Departure", desc: "Airport." }] },
+            { id: 'az-01', name: "Baku City & Fire Mountain (4N/5D)", dest: "Azerbaijan", cat: "World", duration: "5 Days", price: 48000, oldPrice: 54000, rating: 4.6, reviews: "1.1k", img: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&q=80", tag: "Culture", itinerary: [{ day: 1, title: "Baku", desc: "Arrival & Flame Towers." }, { day: 2, title: "Old City", desc: "Maiden Tower & Palace." }, { day: 3, title: "Absheron", desc: "Fire Temple & Yanardag." }, { day: 4, title: "Gobustan", desc: "Mud Volcanoes." }, { day: 5, title: "Departure", desc: "Airport." }] },
+            { id: 'eu-01', name: "Swiss Paris Delight (6N/7D)", dest: "Europe", cat: "World", duration: "7 Days", price: 135000, oldPrice: 150000, rating: 4.8, reviews: "4.5k", img: "https://images.unsplash.com/photo-1499856871940-a09627c6dcf6?auto=format&fit=crop&q=80", tag: "Premium", itinerary: [{ day: 1, title: "Paris", desc: "Arrival & Seine Cruise." }, { day: 2, title: "City Tour", desc: "Eiffel Tower & Louvre." }, { day: 3, title: "Switzerland", desc: "Train to Zurich/Lucerne." }, { day: 4, title: "Mt Titlis", desc: "Snow excursion." }, { day: 5, title: "Interlaken", desc: "Day trip." }, { day: 6, title: "Zurich", desc: "City tour." }, { day: 7, title: "Departure", desc: "Fly out." }] },
+            { id: 'md-01', name: "Maldives Luxury Water Villa (3N/4D)", dest: "Maldives", cat: "World", duration: "4 Days", price: 85000, oldPrice: 95000, rating: 4.9, reviews: "2.8k", img: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80", tag: "Resort", itinerary: [{ day: 1, title: "Arrival", desc: "Speedboat to Resort." }, { day: 2, title: "Leisure", desc: "Water sports & Spa." }, { day: 3, title: "Relax", desc: "Sunset cruise." }, { day: 4, title: "Departure", desc: "Speedboat to airport." }] },
+            { id: 'sl-01', name: "Sri Lanka Wildlife & Heritage (5N/6D)", dest: "Sri Lanka", cat: "World", duration: "6 Days", price: 32000, oldPrice: 38000, rating: 4.7, reviews: "1.5k", img: "https://images.unsplash.com/photo-1586224371587-0b165bf2593b?auto=format&fit=crop&q=80", tag: "Nature", itinerary: [{ day: 1, title: "Colombo", desc: "Arrival." }, { day: 2, title: "Kandy", desc: "Temple of Tooth." }, { day: 3, title: "Nuwara Eliya", desc: "Tea Plantations." }, { day: 4, title: "Yala", desc: "National Park Safari." }, { day: 5, title: "Bentota", desc: "Beach." }, { day: 6, title: "Departure", desc: "Fly out." }] },
+
+            // INDIA
+            { id: 'in-kl', name: "Kerala Backwaters & Munnar (5N/6D)", dest: "Kerala, India", cat: "India", duration: "6 Days", price: 26000, oldPrice: 30000, rating: 4.8, reviews: "3.6k", img: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&q=80", tag: "Nature", itinerary: [{ day: 1, title: "Kochi", desc: "Arrival & Transfer to Munnar." }, { day: 2, title: "Munnar", desc: "Tea Gardens & Mattupetty Dam." }, { day: 3, title: "Thekkady", desc: "Spice Plantation & Periyar." }, { day: 4, title: "Alleppey", desc: "Houseboat stay." }, { day: 5, title: "Kochi", desc: "Fort Kochi Tour." }, { day: 6, title: "Departure", desc: "Airport drop." }] },
+            { id: 'in-kl2', name: "Kerala Culture & Wildlife (6N/7D)", dest: "Kerala, India", cat: "India", duration: "7 Days", price: 32000, oldPrice: 38000, rating: 4.9, reviews: "1.2k", img: "https://images.unsplash.com/photo-1593693397690-362cb9666c89?auto=format&fit=crop&q=80", tag: "Premium", itinerary: [{ day: 1, title: "Kochi", desc: "Arrival & Kathakali show." }, { day: 2, title: "Thekkady", desc: "Periyar Wildlife Safari." }, { day: 4, title: "Kumarakom", desc: "Bird Sanctuary & Resort." }, { day: 5, title: "Kovalam", desc: "Beach relaxation." }, { day: 7, title: "Departure", desc: "Trivandrum drop." }] },
+            
+            { id: 'in-mn', name: "Manali Snow Escapade (4N/5D)", dest: "Manali, India", cat: "India", duration: "5 Days", price: 16500, oldPrice: 20000, rating: 4.6, reviews: "4.1k", img: "https://images.unsplash.com/photo-1605649487212-4d4ce7bcbb6e?auto=format&fit=crop&q=80", tag: "Mountains", itinerary: [{ day: 1, title: "Arrival", desc: "Reach Manali & Local sightseeing." }, { day: 2, title: "Rohtang / Solang", desc: "Snow point excursion." }, { day: 3, title: "Kullu", desc: "Valley tour & Rafting." }, { day: 4, title: "Old Manali", desc: "Cafes & Hadimba Temple." }, { day: 5, title: "Departure", desc: "Drive back." }] },
+            { id: 'in-mn2', name: "Shimla & Manali Mega Tour (6N/7D)", dest: "Himachal, India", cat: "India", duration: "7 Days", price: 24000, oldPrice: 28000, rating: 4.7, reviews: "2.8k", img: "https://images.unsplash.com/photo-1596895111956-bf1cf0599ce5?auto=format&fit=crop&q=80", tag: "Classic", itinerary: [{ day: 1, title: "Shimla", desc: "Arrival & Mall Road." }, { day: 2, title: "Kufri", desc: "Snow activities." }, { day: 3, title: "Manali", desc: "Scenic drive to Manali." }, { day: 4, title: "Solang Valley", desc: "Adventure sports." }, { day: 6, title: "Kullu", desc: "Shawl factories & Temples." }, { day: 7, title: "Departure", desc: "Drive back to Delhi/Chd." }] },
+            
+            { id: 'in-go', name: "Goa Beach & Beyond (3N/4D)", dest: "Goa, India", cat: "India", duration: "4 Days", price: 14000, oldPrice: 18000, rating: 4.5, reviews: "6.5k", img: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80", tag: "Party", itinerary: [{ day: 1, title: "North Goa", desc: "Check-in & Baga Beach." }, { day: 2, title: "Sightseeing", desc: "Fort Aguada & Beaches." }, { day: 3, title: "South Goa", desc: "Churches & Mandovi Cruise." }, { day: 4, title: "Departure", desc: "Airport drop." }] },
+            { id: 'in-go2', name: "Romantic South Goa Retreat (4N/5D)", dest: "Goa, India", cat: "India", duration: "5 Days", price: 21000, oldPrice: 25000, rating: 4.8, reviews: "1.9k", img: "https://images.unsplash.com/photo-1591228127791-8e2eaef098d3?auto=format&fit=crop&q=80", tag: "Couples", itinerary: [{ day: 1, title: "South Goa", desc: "Arrival at 5-Star Resort." }, { day: 2, title: "Palolem Beach", desc: "Relaxation & watersports." }, { day: 3, title: "Dudhsagar", desc: "Waterfall day trip." }, { day: 4, title: "Old Goa", desc: "Heritage tour & Sunset cruise." }, { day: 5, title: "Departure", desc: "Airport drop." }] },
+
+            { id: 'in-ks', name: "Kashmir Paradise (5N/6D)", dest: "Kashmir, India", cat: "India", duration: "6 Days", price: 22000, oldPrice: 28000, rating: 4.8, reviews: "2.1k", img: "https://images.unsplash.com/photo-1623164027299-967f815ccf8d?auto=format&fit=crop&q=80", tag: "Best Seller", itinerary: [{ day: 1, title: "Srinagar", desc: "Arrival & Shikara Ride." }, { day: 2, title: "Sonmarg", desc: "Glacier trip." }, { day: 3, title: "Gulmarg", desc: "Gondola & Snow." }, { day: 4, title: "Pahalgam", desc: "Betaab Valley." }, { day: 5, title: "Srinagar", desc: "Houseboat." }, { day: 6, title: "Departure", desc: "Fly out." }] },
+            { id: 'in-ks2', name: "Srinagar & Gulmarg Short Break (3N/4D)", dest: "Kashmir, India", cat: "India", duration: "4 Days", price: 15500, oldPrice: 18000, rating: 4.7, reviews: "3.4k", img: "https://images.unsplash.com/photo-1595846519845-68e298c2edd8?auto=format&fit=crop&q=80", tag: "Quick Escapade", itinerary: [{ day: 1, title: "Srinagar", desc: "Arrival & Mughal Gardens." }, { day: 2, title: "Gulmarg", desc: "Day trip & Gondola ride." }, { day: 3, title: "Dal Lake", desc: "Houseboat stay & Shikara." }, { day: 4, title: "Departure", desc: "Airport drop." }] }
+        ];
+
+        // MAJOR DESTINATIONS FOCUSING ON DUBAI & SEA
+        const DESTINATIONS = [
+            { name: 'Dubai', img: 'https://images.unsplash.com/photo-1512453979798-5ea904ac2294?auto=format&fit=crop&q=80' },
+            { name: 'Singapore', img: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80' },
+            { name: 'Thailand', img: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&q=80' },
+            { name: 'Bali', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80' },
+            { name: 'Vietnam', img: 'https://images.unsplash.com/photo-1557315360-6a350ab4eccd?auto=format&fit=crop&q=80' },
+            { name: 'Japan', img: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80' },
+            { name: 'Maldives', img: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&q=80' },
+            { name: 'Sri Lanka', img: 'https://images.unsplash.com/photo-1586224371587-0b165bf2593b?auto=format&fit=crop&q=80' },
+            { name: 'Europe', img: 'https://images.unsplash.com/photo-1499856871940-a09627c6dcf6?auto=format&fit=crop&q=80' },
+            { name: 'Azerbaijan', img: 'https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&q=80' },
+            { name: 'Georgia', img: 'https://images.unsplash.com/photo-1565018977116-e52296d19207?auto=format&fit=crop&q=80' },
+            { name: 'Kerala', img: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&q=80' },
+            { name: 'Manali', img: 'https://images.unsplash.com/photo-1605649487212-4d4ce7bcbb6e?auto=format&fit=crop&q=80' },
+            { name: 'Kashmir', img: 'https://images.unsplash.com/photo-1623164027299-967f815ccf8d?auto=format&fit=crop&q=80' },
+            { name: 'Goa', img: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80' },
+        ];
+
+        // --- 2. STATE ---
+        let state = {
+            search: '',
+            category: 'All',
+            activeTour: null,
+            bookingGuests: 2,
+            bookingDate: '2026-03-01'
+        };
+
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        state.bookingDate = tomorrow.toISOString().split('T')[0];
+
+        // --- 3. INIT & RENDER ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDestinations();
+            renderGrid();
+            document.getElementById('book-date').value = state.bookingDate;
+        });
+
+        function renderDestinations() {
+            const container = document.getElementById('dest-grid');
+            container.innerHTML = DESTINATIONS.map(d => `
+                <div class="cursor-pointer group" onclick="setSearch('${d.name}')">
+                    <div class="aspect-square rounded-xl overflow-hidden mb-3 relative shadow-sm border-2 border-transparent group-hover:border-brand transition-all">
+                        <img src="${d.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${d.name}">
+                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition"></div>
+                    </div>
+                    <p class="text-sm font-bold text-gray-800 text-center group-hover:text-brand transition">${d.name}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('inventory-grid');
+            const noRes = document.getElementById('no-results');
+            
+            const q = state.search.toLowerCase();
+            const filtered = INVENTORY.filter(t => {
+                const matchSearch = t.name.toLowerCase().includes(q) || t.dest.toLowerCase().includes(q);
+                const matchCat = state.category === 'All' || t.cat === state.category;
+                return matchSearch && matchCat;
+            });
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                noRes.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            noRes.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(t => `
+                <div onclick="openTour('${t.id}')" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col h-[340px]">
+                    <div class="relative h-48 overflow-hidden flex-shrink-0">
+                        <img src="${t.img}" alt="${t.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        ${t.tag ? `<div class="absolute top-3 left-3 bg-brand text-white text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded shadow-md">${t.tag}</div>` : ''}
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow justify-between">
+                        <div>
+                            <h3 class="text-[15px] font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-brand transition">${t.name}</h3>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <span class="flex items-center text-xs font-bold text-brand"><i class="fa-solid fa-star mr-1"></i> ${t.rating}</span>
+                                <span class="text-[11px] text-gray-400">(${t.reviews} reviews)</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 pt-3 border-t border-gray-100 flex justify-between items-end">
+                            <div>
+                                <p class="text-[11px] text-gray-400 line-through mb-0.5">₹ ${t.oldPrice.toLocaleString()}</p>
+                                <p class="text-lg font-black text-brand leading-none">₹ ${t.price.toLocaleString()}</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-brand group-hover:text-white transition">
+                                <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 4. NAVIGATION & INTERACTIONS ---
+        function navigate(viewName) {
+            document.getElementById('view-home').classList.add('view-hidden');
+            document.getElementById('view-detail').classList.add('view-hidden');
+            
+            document.getElementById(`view-${viewName}`).classList.remove('view-hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setCategory(cat) {
+            state.category = cat;
+            
+            // Map the data category to the HTML element IDs
+            const mapping = {
+                'All': { id: 'cat-All', textId: 'text-All', iconClass: 'fa-globe' },
+                'South East Asia': { id: 'cat-SEA', textId: 'text-SEA', iconClass: 'fa-umbrella-beach' },
+                'Middle East': { id: 'cat-ME', textId: 'text-ME', iconClass: 'fa-building' },
+                'India': { id: 'cat-India', textId: 'text-India', iconClass: 'fa-map-location-dot' },
+                'World': { id: 'cat-World', textId: 'text-World', iconClass: 'fa-plane' }
+            };
+            
+            // Update Top Categories UI
+            Object.keys(mapping).forEach(c => {
+                const elements = mapping[c];
+                const icon = document.getElementById(elements.id);
+                const text = document.getElementById(elements.textId);
+                
+                if(icon && text) {
+                    if(c === cat) {
+                        icon.className = `w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-sky-100 text-brand text-lg`;
+                        icon.innerHTML = `<i class="fa-solid ${elements.iconClass}"></i>`;
+                        text.className = "text-xs font-medium text-center text-brand";
+                    } else {
+                        icon.className = `w-12 h-12 rounded-full flex items-center justify-center transition mb-2 bg-gray-100 text-gray-500 group-hover:bg-sky-100 group-hover:text-brand text-lg`;
+                        icon.innerHTML = `<i class="fa-solid ${elements.iconClass}"></i>`;
+                        text.className = "text-xs font-medium text-center text-gray-600 group-hover:text-gray-900";
+                    }
+                }
+            });
+
+            document.getElementById('grid-title').innerText = cat === 'All' ? 'All Premium Tours' : `${cat} Tours`;
+            renderGrid();
+        }
+
+        function handleSearch(e) {
+            if (e.key === 'Enter') executeSearch();
+        }
+
+        function executeSearch() {
+            const navVal = document.getElementById('nav-search').value;
+            const heroVal = document.getElementById('hero-search') ? document.getElementById('hero-search').value : '';
+            
+            state.search = heroVal || navVal;
+            document.getElementById('nav-search').value = state.search;
+            if(document.getElementById('hero-search')) document.getElementById('hero-search').value = state.search;
+            
+            if(state.search) {
+                document.getElementById('grid-title').innerText = `Results for "${state.search}"`;
+            } else {
+                document.getElementById('grid-title').innerText = state.category === 'All' ? 'All Premium Tours' : `${state.category} Tours`;
+            }
+            
+            renderGrid();
+            
+            // Scroll to grid if on home
+            if(!document.getElementById('view-home').classList.contains('view-hidden')) {
+                document.getElementById('grid-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function setSearch(term) {
+            document.getElementById('nav-search').value = term;
+            if(document.getElementById('hero-search')) document.getElementById('hero-search').value = term;
+            navigate('home');
+            executeSearch();
+        }
+
+        // --- 5. TOUR DETAILS LOGIC ---
+        function openTour(id) {
+            const tour = INVENTORY.find(t => t.id === id);
+            if(!tour) return;
+            state.activeTour = tour;
+
+            // Populate UI
+            document.getElementById('dt-img').src = tour.img;
+            document.getElementById('dt-title').innerText = tour.name;
+            document.getElementById('dt-crumb-name').innerText = tour.name;
+            document.getElementById('dt-loc').innerText = tour.dest;
+            document.getElementById('dt-dest').innerText = tour.dest;
+            document.getElementById('dt-rating').innerText = tour.rating;
+            document.getElementById('dt-reviews').innerText = tour.reviews;
+            
+            document.getElementById('dt-price').innerText = `₹ ${tour.price.toLocaleString()}`;
+            document.getElementById('dt-old-price').innerText = `₹ ${tour.oldPrice.toLocaleString()}`;
+
+            if(tour.tag) {
+                document.getElementById('dt-tag').innerText = tour.tag;
+                document.getElementById('dt-tag').classList.remove('hidden');
+            } else {
+                document.getElementById('dt-tag').classList.add('hidden');
+            }
+
+            // Itinerary
+            const itinHTML = tour.itinerary.map((item, idx) => `
+                <div class="relative pl-12 pb-6 last:pb-0">
+                    <div class="absolute left-0 top-0 w-8 h-8 bg-sky-100 text-brand rounded-full flex items-center justify-center font-bold text-xs z-10 border-4 border-[#F5F5F5]">${idx+1}</div>
+                    <h4 class="font-bold text-sm text-gray-900 mb-1">${item.title}</h4>
+                    <p class="text-sm text-gray-600 bg-white p-4 rounded-xl shadow-sm border border-gray-100">${item.desc}</p>
+                </div>
+            `).join('');
+            document.getElementById('dt-itinerary-list').innerHTML = itinHTML;
+
+            // Policies
+            document.getElementById('dt-terms').innerText = "50% Advance to Book";
+            document.getElementById('dt-cancellation').innerText = "Flexible Booking Policy";
+            document.getElementById('dt-policy-note').innerText = "Enjoy peace of mind with our highly flexible booking and easy modification policy.";
+            document.getElementById('dt-cancellation').className = "font-bold text-green-600";
+
+            switchTab('itinerary');
+            updateBookingPanel();
+            navigate('detail');
+        }
+
+        function switchTab(tabId) {
+            ['itinerary', 'inclusions', 'policies'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).className = "tab-btn px-4 py-3 font-bold text-sm whitespace-nowrap text-gray-500 border-b-[3px] border-transparent hover:text-gray-800 transition";
+            });
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).className = "tab-btn px-4 py-3 font-bold text-sm whitespace-nowrap text-brand border-b-[3px] border-brand transition";
+        }
+
+        // --- 6. BOOKING & PAYMENT ---
+        function updateGuests(change) {
+            let newCount = state.bookingGuests + change;
+            if(newCount < 1) newCount = 1;
+            if(newCount > 20) newCount = 20;
+            state.bookingGuests = newCount;
+            updateBookingPanel();
+        }
+
+        document.getElementById('book-date').addEventListener('change', (e) => {
+            state.bookingDate = e.target.value;
+        });
+
+        function updateBookingPanel() {
+            if(!state.activeTour) return;
+            document.getElementById('book-guests').innerText = state.bookingGuests;
+            
+            const total = state.activeTour.price * state.bookingGuests;
+            document.getElementById('book-total').innerText = `₹ ${total.toLocaleString()}`;
+
+            // All multi-day tours take a 50% deposit
+            const payable = total * 0.50;
+            
+            document.getElementById('book-payable-label').innerText = "50% Deposit";
+            document.getElementById('book-payable').innerText = `₹ ${payable.toLocaleString()}`;
+        }
+
+        function openPayment() {
+            if(!state.activeTour) return;
+            const total = state.activeTour.price * state.bookingGuests;
+            const payable = total * 0.50; // Deposit
+
+            document.getElementById('pay-type-label').innerText = "Paying 50% Deposit";
+            document.getElementById('pay-amount').innerText = `₹ ${payable.toLocaleString()}`;
+            
+            document.getElementById('modal-payment').classList.remove('view-hidden');
+        }
+
+        function closeModals() {
+            document.getElementById('modal-payment').classList.add('view-hidden');
+            document.getElementById('modal-voucher').classList.add('view-hidden');
+            // Reset payment button
+            const btn = document.getElementById('btn-process-pay');
+            if (btn) {
+                btn.innerHTML = '<i class="fa-regular fa-envelope mr-2"></i> I Have Paid';
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
+        }
+
+        function processEmailPayment() {
+            if(!state.activeTour) return;
+            
+            const total = state.activeTour.price * state.bookingGuests;
+            const payable = total * 0.50;
+            
+            const subject = encodeURIComponent(`Payment Screenshot - ${state.activeTour.name}`);
+            const body = encodeURIComponent(`Hi Glider Support,\n\nI have successfully made the payment of ₹ ${payable.toLocaleString()} for the "${state.activeTour.name}" booking.\n\n*PLEASE ATTACH YOUR PAYMENT SCREENSHOT TO THIS EMAIL*\n\nBooking Details:\n- Tour: ${state.activeTour.name}\n- Travel Date: ${state.bookingDate}\n- Guests: ${state.bookingGuests}\n\nThank you.`);
+            
+            window.location.href = `mailto:support@glidertravels.com?subject=${subject}&body=${body}`;
+
+            const btn = document.getElementById('btn-process-pay');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Verifying...';
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+            
+            setTimeout(() => {
+                closeModals();
+                showVoucher();
+            }, 3000);
+        }
+
+        function showVoucher() {
+            const t = state.activeTour;
+            document.getElementById('v-title').innerText = t.name;
+            document.getElementById('v-dest').innerText = t.dest;
+            document.getElementById('v-duration').innerText = t.duration;
+            document.getElementById('v-date').innerText = state.bookingDate;
+            document.getElementById('v-guests').innerText = `${state.bookingGuests} Pax`;
+            
+            const randomId = `KL-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`;
+            document.getElementById('v-id').innerText = randomId;
+
+            document.getElementById('modal-voucher').classList.remove('view-hidden');
+        }
+
+        // --- 7. UTILITIES ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
